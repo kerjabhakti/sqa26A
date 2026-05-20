@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DompetKu - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .logo-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .logo p {
+            font-size: 14px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+
+        .btn-login:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-message {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .result-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .result-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .validation-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .validation-error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                </svg>
+            </div>
+            <h1>DompetKu</h1>
+            <p>Masuk ke akun DompetKu</p>
+        </div>
+
+        <form id="login-form" onsubmit="return false;">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Masukkan username">
+                <div class="validation-error" id="username-error">Username tidak boleh kosong</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Masukkan password">
+                <div class="validation-error" id="password-error">Password tidak boleh kosong</div>
+            </div>
+
+            <button type="button" id="btn-login" onclick="doLogin()">Login</button>
+        </form>
+
+        <div class="result-message" id="result-message"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://dompetku-mu.vercel.app';
+
+        async function doLogin() {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const resultMessage = document.getElementById('result-message');
+            const btnLogin = document.getElementById('btn-login');
+            const usernameError = document.getElementById('username-error');
+            const passwordError = document.getElementById('password-error');
+
+            // Reset
+            resultMessage.className = 'result-message';
+            resultMessage.style.display = 'none';
+            usernameError.classList.remove('show');
+            passwordError.classList.remove('show');
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            // Validasi client-side
+            let hasError = false;
+            if (!username) {
+                usernameError.classList.add('show');
+                hasError = true;
+            }
+            if (!password) {
+                passwordError.classList.add('show');
+                hasError = true;
+            }
+
+            if (hasError) {
+                resultMessage.textContent = 'Harap isi semua field';
+                resultMessage.className = 'result-message error';
+                return;
+            }
+
+            // Loading state
+            btnLogin.disabled = true;
+            btnLogin.textContent = 'Loading...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultMessage.textContent = `Login berhasil! Selamat datang ${data.user?.nama || username}`;
+                    resultMessage.className = 'result-message success';
+                } else {
+                    resultMessage.textContent = data.error || 'Login gagal';
+                    resultMessage.className = 'result-message error';
+                }
+            } catch (error) {
+                resultMessage.textContent = 'Terjadi kesalahan jaringan: ' + error.message;
+                resultMessage.className = 'result-message error';
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.textContent = 'Login';
+            }
+        }
+
+        // Enter key support
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+        document.getElementById('username').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+    </script>
+</body>
+</html>
