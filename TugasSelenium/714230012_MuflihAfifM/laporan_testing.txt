@@ -1,0 +1,8 @@
+==================================================
+          LAPORAN PENGUJIAN UNITTEST-MANUAL       
+==================================================
+Modul Fitur   : Form Otentikasi Login (PDF Suit)
+Metode Input  : User Manual Input (Unittest Class)
+Status Akhir  : PASSED
+Detail Log    : User sukses login manual. URL berubah ke: https://pdfmulbi.github.io/index.html
+==================================================
